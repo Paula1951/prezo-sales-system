@@ -17,14 +17,10 @@ class SalesSeeder extends Seeder
     public function run(): void
     {
         DB::table('sales')->insert([
-            [
-                'sale_date' => '2024-07-02',
-                'total_price' => null,
-            ],
-            [
-                'sale_date' => '2024-07-03',
-                'total_price' => null,
-            ],
+            ['sale_id' => 1, 'product_id' => 1, 'quantity' => 10, 'price' => 10.00],
+            ['sale_id' => 1, 'product_id' => 2, 'quantity' => 5, 'price' => 10.00],
+            ['sale_id' => 2, 'product_id' => 1, 'quantity' => 8, 'price' => 10.00],
+            ['sale_id' => 2, 'product_id' => 2, 'quantity' => 2, 'price' => 8.00],
         ]);
     }
 }

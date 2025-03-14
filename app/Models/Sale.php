@@ -11,8 +11,11 @@ class Sale extends Model
 
     protected $table = 'sales';
     protected $fillable = [
-        'sale_date',        
-        'total_price',
+        'date_sale',
+        'product_id',
+        'quantity_sold',
+        'sale_price',
+        'profit_margin',
     ];
 
     public function saleDetails()
