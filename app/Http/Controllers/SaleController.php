@@ -3,38 +3,60 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\DatabaseService;
+use App\Models\Product;
 
 class SaleController extends Controller
 {
-
-    protected $dbService;
-
-    public function __construct(DatabaseService $dbService)
+    public function validateSalesInput(Request $request)
     {
-        $this->dbService = $dbService;
+        try {
+            $salesInput = $request->validate([
+                'sales' => 'required|array',
+                'sales.*.date_sale' => 'required|date',
+                'sales.*.product_id' => 'required|exists:products,id',
+                'sales.*.quantity_sold' => 'required|integer',
+                'sales.*.sale_price' => 'required|numeric',
+            ]);
+            return $salesInput;
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'The product with the provided ID does not exist in the database.',
+                'message' => $e->errors(),
+            ], 400);
+        }
     }
 
-    public function getFoodCostProduct($id)
+    public function calculateProfitMargin($salePrice, $foodCost)
     {
-        $dbConnection = $this->dbService->getConnection();
-        $allProducts = $dbConnection->query("SELECT food_cost FROM Products WHERE ROWID>$id");
-        return $allProducts;
+        return (($salePrice - $foodCost) / $salePrice) * 100;
     }
 
     public function calculateMargins(Request $request)
     {
-        $rawBody = $request->getContent();
-    
-        $salesInput = $request->validate([
-            'sales' => 'required|array',
-            'sales.*.date_sale' => 'required|date',
-            'sales.*.product_id' => 'required|exists:products,id',
-            'sales.*.quantity_sold' => 'required|integer',
-            'sales.*.sale_price' => 'required|numeric',
-        ]);
+        $salesInput = $this->validateSalesInput($request);
+        
+        foreach ($salesInput['sales'] as $sale) {
+            $saleProductId = $sale['product_id'];
+            $product = Product::find($saleProductId);
+            $foodCost = $product->food_cost;
+            $salePrice = $sale['sale_price'];
+            $resultProfitMargin = $this->calculateProfitMargin($salePrice, $foodCost);
+            
+            $margins[] = [
+                'product_name' => $product['name'],
+                'margin' => number_format($resultProfitMargin, 2) . '%'
+            ];
 
-        return response()->json(['raw' => $rawBody]);
+            $output = "Margen de beneficio de cada escandallo:\n";
+            foreach ($margins as $margin) {
+                $output .= "- " . $product['name'] . ": " . $margin['margin'] . "\n";
+            }
+
+            return response()->json([
+                $margins
+            ]);
+        }
     }
 
     public function calculateSalesMetrics(Request $request)
