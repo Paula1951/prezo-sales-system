@@ -3,17 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\HasFactory;
 
-class Sale extends Model
+class Product extends Model
 {
     use HasFactory;
 
-    protected $table = 'sales';
     protected $fillable = [
-        'sale_date',        
-        'total_price',
-    ];
+        'name',
+        'food_cost',
+    ];    
 
     public function saleDetails()
     {

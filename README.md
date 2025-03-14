@@ -24,3 +24,20 @@ Este proyecto gestiona las ventas de un restaurante, incluyendo la creación de 
     ```bash
     php artisan migrate
     ```
+
+4. Rellenar la base de datos:
+    ```bash
+    php artisan db:seed
+    ```
+
+    o
+
+    ```bash
+    php artisan db:seed --class=ProductsSeeder
+    php artisan db:seed --class=SalesSeeder
+    ```
+
+5. Para acceder a la base de datos:
+    ```bash
+    sqlite3 database/database.sqlite
+    ```
