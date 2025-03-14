@@ -26,22 +26,5 @@ class SalesSeeder extends Seeder
                 'total_price' => null,
             ],
         ]);
-
-        $product1 = Product::find(1);
-        $product2 = Product::find(2);
-
-        SaleDetail::create([
-            'sale_id' => $sale->id,
-            'product_id' => $product1->id,
-            'quantity' => 10,
-            'unit_price' => 10.00,
-        ]);
-        
-        SaleDetail::create([
-            'sale_id' => $sale->id,
-            'product_id' => $product2->id,
-            'quantity' => 5,
-            'unit_price' => 10.00,
-        ]);
     }
 }
