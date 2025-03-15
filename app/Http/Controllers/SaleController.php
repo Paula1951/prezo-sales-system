@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use \Illuminate\Validation\ValidationException;
 
 class SaleController extends Controller
 {
@@ -32,30 +33,60 @@ class SaleController extends Controller
         return (($salePrice - $foodCost) / $salePrice) * 100;
     }
 
+    public function calculateDayMaxMinSales($salesData, $salePrice, $foodCost)
+    {
+        $listSalesPerDay = [];
+
+        foreach ($salesData as $venta) {
+            $date_sale = $venta['date_sale'];
+            $quantity_sold = $venta['quantity_sold'];
+            $sale_price = $venta['sale_price'];
+            
+            $totalSale = $quantity_sold * $sale_price;
+        
+            if (!isset($listSalesPerDay[$date_sale])) {
+                $listSalesPerDay[$date_sale] = 0;
+            }
+            $listSalesPerDay[$date_sale] += $totalSale;
+            
+        }
+        return $listSalesPerDay;
+    }
+    
+    public function messageDayMaxMinSales($listSalesPerDay)
+    {
+        $daymaxSales = array_keys($listSalesPerDay, max($listSalesPerDay))[0];
+        $dayminSales = array_keys($listSalesPerDay, min($listSalesPerDay))[0];
+
+        $maxSales = $listSalesPerDay[$daymaxSales];
+        $minSales = $listSalesPerDay[$dayminSales];
+
+        return response()->json([
+            "Día con mayor volumen de ventas:" => [
+                'Día con mayor volumen de ventas:' => "$daymaxSales, $maxSales",
+                'Día con menor volumen de ventas:' => "$dayminSales, $minSales",    
+            ]
+        ]);
+    }
+
     public function calculateMargins(Request $request)
     {
         $salesInput = $this->validateSalesInput($request);
-        
-        foreach ($salesInput['sales'] as $sale) {
+        $salesData = $salesInput['sales'];
+
+        foreach ($salesData as $sale) {
             $saleProductId = $sale['product_id'];
             $product = Product::find($saleProductId);
             $foodCost = $product->food_cost;
             $salePrice = $sale['sale_price'];
             $resultProfitMargin = $this->calculateProfitMargin($salePrice, $foodCost);
-            
-            $margins[] = [
-                'product_name' => $product['name'],
-                'margin' => number_format($resultProfitMargin, 2) . '%'
-            ];
 
-            $output = "Margen de beneficio de cada escandallo:\n";
-            foreach ($margins as $margin) {
-                $output .= "- " . $product['name'] . ": " . $margin['margin'] . "\n";
-            }
+            // $this->calculateProfitMargin($salesInput, $salePrice, $foodCost);
 
-            return response()->json([
-                $margins
-            ]);
+            $listSalesPerDay = $this->calculateDayMaxMinSales($salesData, $salePrice, $foodCost);
+            $messageDayMaxMinSales = $this->messageDayMaxMinSales($listSalesPerDay);
+
+            return response()->json([ $messageDayMaxMinSales ]);
         }
     }
 
