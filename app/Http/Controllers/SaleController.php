@@ -50,11 +50,7 @@ class SaleController extends Controller
             $listProfitMargins[$productName] = round($profitMargin, 2) . "%";
         }
     
-        \Log::info("listProfitMargins: ");
-        \Log::info($listProfitMargins);
-        // return response()->json([
-        //     'margen_de_beneficio' => $listProfitMargins
-        // ]);
+        return $listProfitMargins;
     }
 
     public function calculateDayMaxMinSales($salesData, $salePrice, $foodCost)
@@ -77,28 +73,12 @@ class SaleController extends Controller
         return $listSalesPerDay;
     }
     
-    public function messageDayMaxMinSales($listSalesPerDay)
-    {
-        $daymaxSales = array_keys($listSalesPerDay, max($listSalesPerDay))[0];
-        $dayminSales = array_keys($listSalesPerDay, min($listSalesPerDay))[0];
-
-        $maxSales = $listSalesPerDay[$daymaxSales];
-        $minSales = $listSalesPerDay[$dayminSales];
-
-        return response()->json([
-            "Día con mayor volumen de ventas:" => [
-                'Día con mayor volumen de ventas:' => "$daymaxSales, $maxSales",
-                'Día con menor volumen de ventas:' => "$dayminSales, $minSales",    
-            ]
-        ]);
-    }
-
     public function calculateMargins(Request $request)
     {
         $salesInput = $this->validateSalesInput($request);
         $salesData = $salesInput['sales'];
 
-        $this->calculateProfitMargin($salesData);
+        $listProfitMargins = $this->calculateProfitMargin($salesData);
 
         foreach ($salesData as $sale) {
             $saleProductId = $sale['product_id'];
@@ -107,10 +87,22 @@ class SaleController extends Controller
             $salePrice = $sale['sale_price'];
 
             $listSalesPerDay = $this->calculateDayMaxMinSales($salesData, $salePrice, $foodCost);
-            $messageDayMaxMinSales = $this->messageDayMaxMinSales($listSalesPerDay);
-
-            return response()->json([ $messageDayMaxMinSales ]);
         }
+
+        $daymaxSales = array_keys($listSalesPerDay, max($listSalesPerDay))[0];
+        $dayminSales = array_keys($listSalesPerDay, min($listSalesPerDay))[0];
+
+        $maxSales = $listSalesPerDay[$daymaxSales];
+        $minSales = $listSalesPerDay[$dayminSales];
+
+        return response()->json([ 
+            "response" => [
+                "Margen de beneficio de cada escandallo:" => $listProfitMargins,
+                'Día con mayor volumen de ventas:' => "$daymaxSales, $maxSales",
+                'Día con menor volumen de ventas:' => "$dayminSales, $minSales",    
+            ] 
+        ]);
+
     }
 
     public function calculateSalesMetrics(Request $request)
