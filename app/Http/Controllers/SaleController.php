@@ -28,9 +28,33 @@ class SaleController extends Controller
         }
     }
 
-    public function calculateProfitMargin($salePrice, $foodCost)
+    public function calculateProfitMargin($salesData)
     {
-        return (($salePrice - $foodCost) / $salePrice) * 100;
+        $listProfitMargins = [];
+    
+        foreach ($salesData as $sale) {
+            $productId = $sale['product_id'];
+            $salePrice = $sale['sale_price'];
+    
+            $product = Product::find($productId);
+    
+            if (!$product) {
+                continue;
+            }
+    
+            $foodCost = $product->food_cost;
+            $productName = $product->name;
+    
+            $profitMargin = (($salePrice - $foodCost) / $salePrice) * 100;
+    
+            $listProfitMargins[$productName] = round($profitMargin, 2) . "%";
+        }
+    
+        \Log::info("listProfitMargins: ");
+        \Log::info($listProfitMargins);
+        // return response()->json([
+        //     'margen_de_beneficio' => $listProfitMargins
+        // ]);
     }
 
     public function calculateDayMaxMinSales($salesData, $salePrice, $foodCost)
@@ -74,14 +98,14 @@ class SaleController extends Controller
         $salesInput = $this->validateSalesInput($request);
         $salesData = $salesInput['sales'];
 
+        $this->calculateProfitMargin($salesData);
+
         foreach ($salesData as $sale) {
             $saleProductId = $sale['product_id'];
             $product = Product::find($saleProductId);
             $foodCost = $product->food_cost;
             $salePrice = $sale['sale_price'];
-            $resultProfitMargin = $this->calculateProfitMargin($salePrice, $foodCost);
 
-            // $this->calculateProfitMargin($salesInput, $salePrice, $foodCost);
 
             $listSalesPerDay = $this->calculateDayMaxMinSales($salesData, $salePrice, $foodCost);
             $messageDayMaxMinSales = $this->messageDayMaxMinSales($listSalesPerDay);
