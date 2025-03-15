@@ -51,7 +51,7 @@ class SaleController extends Controller
         return $listProfitMargins;
     }
 
-    public function calculateDayMaxMinSales($salesData, $salePrice, $foodCost)
+    public function calculateDayMaxMinSales($salesData)
     {
         $listSalesPerDay = [];
 
@@ -71,24 +71,17 @@ class SaleController extends Controller
         return $listSalesPerDay;
     }
     
-    public function calculateMargins(Request $request)
+    public function calculateSalesMetrics(Request $request)
     {
         $salesInput = $this->validateSalesInput($request);
         if ($salesInput instanceof JsonResponse) {
             return $salesInput;
         }    
+        
         $salesData = $salesInput['sales'];
 
         $listProfitMargins = $this->calculateProfitMargin($salesData);
-
-        foreach ($salesData as $sale) {
-            $saleProductId = $sale['product_id'];
-            $product = Product::find($saleProductId);
-            $foodCost = $product->food_cost;
-            $salePrice = $sale['sale_price'];
-
-            $listSalesPerDay = $this->calculateDayMaxMinSales($salesData, $salePrice, $foodCost);
-        }
+        $listSalesPerDay = $this->calculateDayMaxMinSales($salesData);
 
         $daymaxSales = array_keys($listSalesPerDay, max($listSalesPerDay))[0];
         $dayminSales = array_keys($listSalesPerDay, min($listSalesPerDay))[0];
@@ -103,11 +96,5 @@ class SaleController extends Controller
                 'Día con menor volumen de ventas:' => "$dayminSales, $minSales",    
             ] 
         ]);
-
-    }
-
-    public function calculateSalesMetrics(Request $request)
-    {
-        return $this->calculateMargins($request);
     }
 }
