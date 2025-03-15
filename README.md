@@ -29,12 +29,6 @@ Este proyecto gestiona las ventas de un restaurante, incluyendo la creación de 
 
 4. Rellena la base de datos:
     ```bash
-    php artisan db:seed
-    ```
-
-    O usa:
-
-    ```bash
     php artisan db:seed --class=ProductsSeeder
     ```
 
