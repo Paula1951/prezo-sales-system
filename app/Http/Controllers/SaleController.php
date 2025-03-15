@@ -5,21 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use \Illuminate\Validation\ValidationException;
+USE \Illuminate\Http\JsonResponse;
 
 class SaleController extends Controller
 {
     public function validateSalesInput(Request $request)
     {
-        try {
-            $salesInput = $request->validate([
-                'sales' => 'required|array',
-                'sales.*.date_sale' => 'required|date',
-                'sales.*.product_id' => 'required|exists:products,id',
-                'sales.*.quantity_sold' => 'required|integer',
-                'sales.*.sale_price' => 'required|numeric',
-            ]);
-            return $salesInput;
+        $rules = [
+            'sales' => 'required|array',
+            'sales.*.date_sale' => 'required|date',
+            'sales.*.product_id' => 'required|exists:products,id',
+            'sales.*.quantity_sold' => 'required|integer|min:1',
+            'sales.*.sale_price' => 'required|numeric|min:0',
+        ];
 
+        try {
+            $salesInput = $request->validate($rules);
+            return $salesInput;
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'The product with the provided ID does not exist in the database.',
@@ -37,10 +39,6 @@ class SaleController extends Controller
             $salePrice = $sale['sale_price'];
     
             $product = Product::find($productId);
-    
-            if (!$product) {
-                continue;
-            }
     
             $foodCost = $product->food_cost;
             $productName = $product->name;
@@ -76,6 +74,9 @@ class SaleController extends Controller
     public function calculateMargins(Request $request)
     {
         $salesInput = $this->validateSalesInput($request);
+        if ($salesInput instanceof JsonResponse) {
+            return $salesInput;
+        }    
         $salesData = $salesInput['sales'];
 
         $listProfitMargins = $this->calculateProfitMargin($salesData);
