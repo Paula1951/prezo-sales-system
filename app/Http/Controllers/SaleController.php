@@ -20,7 +20,7 @@ class SaleController extends Controller
             ]);
             return $salesInput;
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'The product with the provided ID does not exist in the database.',
                 'message' => $e->errors(),
@@ -62,16 +62,16 @@ class SaleController extends Controller
         $listSalesPerDay = [];
 
         foreach ($salesData as $venta) {
-            $date_sale = $venta['date_sale'];
-            $quantity_sold = $venta['quantity_sold'];
-            $sale_price = $venta['sale_price'];
+            $dateSale = $venta['date_sale'];
+            $quantitySold = $venta['quantity_sold'];
+            $salePrice = $venta['sale_price'];
             
-            $totalSale = $quantity_sold * $sale_price;
+            $totalSale = $quantitySold * $salePrice;
         
-            if (!isset($listSalesPerDay[$date_sale])) {
-                $listSalesPerDay[$date_sale] = 0;
+            if (!isset($listSalesPerDay[$dateSale])) {
+                $listSalesPerDay[$dateSale] = 0;
             }
-            $listSalesPerDay[$date_sale] += $totalSale;
+            $listSalesPerDay[$dateSale] += $totalSale;
             
         }
         return $listSalesPerDay;
@@ -105,7 +105,6 @@ class SaleController extends Controller
             $product = Product::find($saleProductId);
             $foodCost = $product->food_cost;
             $salePrice = $sale['sale_price'];
-
 
             $listSalesPerDay = $this->calculateDayMaxMinSales($salesData, $salePrice, $foodCost);
             $messageDayMaxMinSales = $this->messageDayMaxMinSales($listSalesPerDay);
