@@ -3,11 +3,18 @@
 ## Descripción
 Este proyecto gestiona las ventas de un restaurante, incluyendo la creación de ventas, el cálculo de márgenes de beneficio y la identificación de los días con mayor y menor volumen de ventas.
 
-## Requisitos
+## Requisitos del sistema
+Antes de comenzar, asegúrate de tener instalado lo siguiente:
+
+### Sistema Operativo
+- **Windows** Se recomienda la version 10.
+
+## Requisitos adicionales
 - PHP >= 8.0
 - Laravel >= 11.0
 - Composer
 - SQLite
+- Postman
 
 ## Instalación
 
