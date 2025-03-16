@@ -7,7 +7,7 @@ Este proyecto gestiona las ventas de un restaurante, incluyendo la creación de 
 Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
 ### Sistema Operativo
-- **Windows** Se recomienda la version 10.
+- **Windows 10 o superior** (Recomendado)
 
 ## Requisitos adicionales
 - PHP >= 8.0
