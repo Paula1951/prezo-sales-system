@@ -36,12 +36,6 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
 4. Rellena la base de datos:
     ```bash
-    php artisan db:seed
-    ```
-
-    O usa:
-
-    ```bash
     php artisan db:seed --class=ProductsSeeder
     ```
 
