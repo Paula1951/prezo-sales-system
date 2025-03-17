@@ -23,7 +23,12 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
     composer install
     ```
 
-2. Configura el archivo `.env` para la base de datos SQLite:
+2. Configura el archivo `.env`: 
+
+    2.1 Copia el archivo `.env.example` y renómbralo como `.env`.
+    
+    2.2 Abre el archivo `.env` y ajusta los valores de configuración según tus necesidades, utilizando la información requerida.
+
     ```ini
     DB_CONNECTION=sqlite
     DB_DATABASE=./database/database.sqlite
